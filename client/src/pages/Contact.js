@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FiMail, FiPhone, FiMapPin, FiSend } from 'react-icons/fi';
 import axios from 'axios';
+import API_URL from '../config/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const Contact = () => {
     setStatus({ type: 'loading', message: 'Sending...' });
 
     try {
-      const res = await axios.post('http://localhost:5000/api/contact', formData);
+      const res = await axios.post('${API_URL}/api/contact', formData);
       setStatus({ type: 'success', message: 'Message sent successfully!' });
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch (error) {

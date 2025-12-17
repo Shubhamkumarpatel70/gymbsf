@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { FiUser, FiCalendar, FiActivity, FiEdit2, FiCheck, FiTarget, FiTrendingUp, FiAward, FiCreditCard, FiFilter, FiPlus, FiX } from 'react-icons/fi';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import API_URL from '../config/api';
 
 const UserDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -36,7 +37,7 @@ const UserDashboard = () => {
   const fetchUserData = async () => {
     try {
       const userId = user.id || user._id;
-      const res = await axios.get(`http://localhost:5000/api/users/${userId}`, {
+      const res = await axios.get(`${API_URL}/api/users/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -58,7 +59,7 @@ const UserDashboard = () => {
   const fetchTransactions = async () => {
     try {
       const userId = user.id || user._id;
-      const res = await axios.get(`http://localhost:5000/api/payments/user/${userId}`, {
+      const res = await axios.get(`${API_URL}/api/payments/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -75,8 +76,8 @@ const UserDashboard = () => {
       const headers = { Authorization: `Bearer ${token}` };
       
       const [workoutStatsRes, goalStatsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/workouts/stats', { headers }),
-        axios.get('http://localhost:5000/api/goals/stats', { headers })
+        axios.get('${API_URL}/api/workouts/stats', { headers }),
+        axios.get('${API_URL}/api/goals/stats', { headers })
       ]);
       
       setProgressStats({
@@ -104,7 +105,7 @@ const UserDashboard = () => {
         }));
       
       await axios.post(
-        'http://localhost:5000/api/workouts',
+        '${API_URL}/api/workouts',
         {
           date: workoutForm.date,
           exercises,
@@ -154,7 +155,7 @@ const UserDashboard = () => {
     try {
       const userId = user.id || user._id;
       await axios.put(
-        `http://localhost:5000/api/users/${userId}`,
+        `${API_URL}/api/users/${userId}`,
         formData,
         {
           headers: {

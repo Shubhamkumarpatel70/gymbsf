@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiCreditCard, FiUser, FiPackage, FiDollarSign, FiCheck, FiX, FiTag, FiMaximize2 } from 'react-icons/fi';
 import axios from 'axios';
+import API_URL from '../config/api';
 import AuthContext from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -25,14 +26,14 @@ const Payment = () => {
     const fetchPaymentData = async () => {
       try {
         // Fetch payment settings
-        const settingsRes = await axios.get('http://localhost:5000/api/payment-settings');
+        const settingsRes = await axios.get('${API_URL}/api/payment-settings');
         setPaymentSettings(settingsRes.data);
 
         // Get payment ID from URL params or location state
         const paymentId = new URLSearchParams(location.search).get('id') || location.state?.paymentId;
         
         if (paymentId) {
-          const res = await axios.get(`http://localhost:5000/api/payments/${paymentId}`, {
+          const res = await axios.get(`${API_URL}/api/payments/${paymentId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
@@ -48,12 +49,12 @@ const Payment = () => {
           }
         } else if (location.state?.planId) {
           // Create new payment if coming from plans page
-          const planRes = await axios.get(`http://localhost:5000/api/plans/${location.state.planId}`);
+          const planRes = await axios.get(`${API_URL}/api/plans/${location.state.planId}`);
           const planData = planRes.data;
           setPlan(planData);
           
           const userId = user.id || user._id;
-          const userRes = await axios.get(`http://localhost:5000/api/users/${userId}`, {
+          const userRes = await axios.get(`${API_URL}/api/users/${userId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
@@ -66,7 +67,7 @@ const Payment = () => {
           endDate.setMonth(endDate.getMonth() + planData.duration);
           
           await axios.post(
-            `http://localhost:5000/api/users/${userId}/subscribe`,
+            `${API_URL}/api/users/${userId}/subscribe`,
             {
               planId: planData._id,
               startDate: startDate.toISOString(),
@@ -87,7 +88,7 @@ const Payment = () => {
 
           // Create payment
           const paymentRes = await axios.post(
-            'http://localhost:5000/api/payments',
+            '${API_URL}/api/payments',
             {
               userId: userId,
               planId: planData._id,
@@ -137,7 +138,7 @@ const Payment = () => {
       // Delete old payment and create new one with coupon
       if (payment._id) {
         try {
-          await axios.delete(`http://localhost:5000/api/payments/${payment._id}`, {
+          await axios.delete(`${API_URL}/api/payments/${payment._id}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
@@ -149,7 +150,7 @@ const Payment = () => {
 
       // Create payment with coupon
       const paymentRes = await axios.post(
-        'http://localhost:5000/api/payments',
+        '${API_URL}/api/payments',
         {
           userId: userId,
           planId: planId,
@@ -192,7 +193,7 @@ const Payment = () => {
 
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/payments/${payment._id}/transaction`,
+        `${API_URL}/api/payments/${payment._id}/transaction`,
         { transactionId },
         {
           headers: {
@@ -428,7 +429,7 @@ const Payment = () => {
                     try {
                       setIsSubmitted(true);
                       if (payment._id) {
-                        const res = await axios.get(`http://localhost:5000/api/payments/${payment._id}`, {
+                        const res = await axios.get(`${API_URL}/api/payments/${payment._id}`, {
                           headers: {
                             Authorization: `Bearer ${localStorage.getItem('token')}`,
                           },

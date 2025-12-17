@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiCheck, FiStar } from 'react-icons/fi';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import API_URL from '../config/api';
 
 const Plans = () => {
   const [plans, setPlans] = useState([]);
@@ -20,7 +21,7 @@ const Plans = () => {
 
   const fetchPlans = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/plans');
+      const res = await axios.get('${API_URL}/api/plans');
       setPlans(res.data);
     } catch (error) {
       console.error('Error fetching plans:', error);
@@ -32,7 +33,7 @@ const Plans = () => {
   const fetchUserData = async () => {
     try {
       const userId = user.id || user._id;
-      const res = await axios.get(`http://localhost:5000/api/users/${userId}`, {
+      const res = await axios.get(`${API_URL}/api/users/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },

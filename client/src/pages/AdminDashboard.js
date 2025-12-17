@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiUsers, FiDollarSign, FiMail, FiPlus, FiEdit, FiTrash2, FiCheck, FiX, FiCalendar, FiTag, FiCreditCard, FiSearch } from 'react-icons/fi';
 import axios from 'axios';
+import API_URL from '../config/api';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -69,12 +70,12 @@ const AdminDashboard = () => {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [usersRes, plansRes, contactsRes, couponsRes, paymentsRes, settingsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/users', { headers }),
-        axios.get('http://localhost:5000/api/plans'),
-        axios.get('http://localhost:5000/api/contact', { headers }),
-        axios.get('http://localhost:5000/api/coupons', { headers }),
-        axios.get('http://localhost:5000/api/payments', { headers }),
-        axios.get('http://localhost:5000/api/payment-settings'),
+        axios.get(`${API_URL}/api/users`, { headers }),
+        axios.get(`${API_URL}/api/plans`),
+        axios.get(`${API_URL}/api/contact`, { headers }),
+        axios.get(`${API_URL}/api/coupons`, { headers }),
+        axios.get(`${API_URL}/api/payments`, { headers }),
+        axios.get(`${API_URL}/api/payment-settings`),
       ]);
 
       setUsers(usersRes.data);
@@ -146,14 +147,14 @@ const AdminDashboard = () => {
       if (editingPlan) {
         // Update existing plan
         await axios.put(
-          `http://localhost:5000/api/plans/${editingPlan._id}`,
+          `${API_URL}/api/plans/${editingPlan._id}`,
           planData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
         // Create new plan
         await axios.post(
-          'http://localhost:5000/api/plans',
+          '${API_URL}/api/plans',
           planData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -222,7 +223,7 @@ const AdminDashboard = () => {
       }
 
       await axios.post(
-        `http://localhost:5000/api/users/${userId}/subscribe`,
+        `${API_URL}/api/users/${userId}/subscribe`,
         {
           planId: subscriptionForm.planId,
           startDate: subscriptionForm.startDate,
@@ -264,7 +265,7 @@ const AdminDashboard = () => {
       const userId = editingUser._id || editingUser.id;
       
       await axios.put(
-        `http://localhost:5000/api/users/${userId}`,
+        `${API_URL}/api/users/${userId}`,
         userEditForm,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -283,7 +284,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/payments/${paymentId}/status`,
+        `${API_URL}/api/payments/${paymentId}/status`,
         { status, transactionId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -302,14 +303,14 @@ const AdminDashboard = () => {
       
       // First approve the subscription
       await axios.post(
-        `http://localhost:5000/api/users/${userId}/approve-subscription`,
+        `${API_URL}/api/users/${userId}/approve-subscription`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
       // Then update payment status to completed
       await axios.put(
-        `http://localhost:5000/api/payments/${paymentId}/status`,
+        `${API_URL}/api/payments/${paymentId}/status`,
         { status: 'completed', transactionId: transactionId || '' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -326,7 +327,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5000/api/users/${userId}/approve-subscription`,
+        `${API_URL}/api/users/${userId}/approve-subscription`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -348,7 +349,7 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('token');
       const userId = rejectingSubscription._id || rejectingSubscription.id;
       await axios.post(
-        `http://localhost:5000/api/users/${userId}/reject-subscription`,
+        `${API_URL}/api/users/${userId}/reject-subscription`,
         { reason: rejectionReason },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -367,7 +368,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:5000/api/payment-settings',
+        '${API_URL}/api/payment-settings',
         paymentSettings,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -385,7 +386,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5000/api/users/${terminatingUser._id}/terminate-subscription`,
+        `${API_URL}/api/users/${terminatingUser._id}/terminate-subscription`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -406,7 +407,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5000/api/users/${userId}/unterminate-subscription`,
+        `${API_URL}/api/users/${userId}/unterminate-subscription`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -432,13 +433,13 @@ const AdminDashboard = () => {
 
       if (editingCoupon) {
         await axios.put(
-          `http://localhost:5000/api/coupons/${editingCoupon._id}`,
+          `${API_URL}/api/coupons/${editingCoupon._id}`,
           couponData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
         await axios.post(
-          'http://localhost:5000/api/coupons',
+          '${API_URL}/api/coupons',
           couponData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -484,7 +485,7 @@ const AdminDashboard = () => {
     if (window.confirm('Are you sure you want to delete this coupon?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/coupons/${id}`, {
+        await axios.delete(`${API_URL}/api/coupons/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchData();
@@ -499,7 +500,7 @@ const AdminDashboard = () => {
     if (window.confirm('Are you sure you want to delete this plan?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/plans/${id}`, {
+        await axios.delete(`${API_URL}/api/plans/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchData();
@@ -513,7 +514,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/contact/${id}/read`,
+        `${API_URL}/api/contact/${id}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
