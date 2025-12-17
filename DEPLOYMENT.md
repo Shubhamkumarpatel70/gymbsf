@@ -1,6 +1,6 @@
 # Deployment Guide for Render
 
-This guide will help you deploy both the backend (server) and frontend (client) on Render.
+This guide will help you deploy both the backend (server) and frontend (client) together in a single Render service.
 
 ## Prerequisites
 
@@ -8,7 +8,65 @@ This guide will help you deploy both the backend (server) and frontend (client) 
 2. MongoDB Atlas account (or any MongoDB cloud service)
 3. Render account (free tier available)
 
-## Step 1: Deploy Backend (Server)
+## Single Service Deployment (Recommended)
+
+Deploy both server and client together in one Web Service on Render.
+
+### Step 1: Deploy Combined Service
+
+1. **Go to Render Dashboard** → Click "New +" → Select "Web Service"
+
+2. **Connect Repository**:
+   - Connect your GitHub account
+   - Select repository: `gymbsf`
+   - Click "Connect"
+
+3. **Configure Service**:
+   - **Name**: `gym-app` (or your preferred name)
+   - **Root Directory**: `server` (leave as is)
+   - **Environment**: `Node`
+   - **Build Command**: `cd ../client && npm install && npm run build && cd ../server && npm install`
+   - **Start Command**: `npm start`
+   - **Plan**: Free (or choose paid plan)
+   
+   **Note**: The build command:
+   - Changes to client directory
+   - Installs client dependencies
+   - Builds the React app (creates `client/build` folder)
+   - Changes to server directory
+   - Installs server dependencies
+
+4. **Add Environment Variables**:
+   Click "Add Environment Variable" and add:
+   ```
+   NODE_ENV = production
+   MONGODB_URI = your_mongodb_atlas_connection_string
+   JWT_SECRET = your_random_secret_key_here
+   PORT = 10000
+   ```
+   
+   **Note**: 
+   - `NODE_ENV=production` is important - it tells the server to serve static files
+   - Render will automatically assign a PORT, but you can set it to 10000
+   - The server code uses `process.env.PORT || 5000`
+
+5. **Click "Create Web Service"**
+   - Render will start building and deploying your application
+   - Wait for deployment to complete (usually 5-10 minutes)
+   - Note the URL: `https://gym-app.onrender.com` (or your custom domain)
+
+### How It Works
+
+- The build command installs client dependencies, builds the React app, then installs server dependencies
+- The server serves the built React app from `client/build` directory
+- All API calls use relative URLs (no CORS issues)
+- Single URL for both frontend and backend
+
+## Alternative: Separate Deployments
+
+If you prefer to deploy server and client separately, follow the steps below.
+
+### Step 1: Deploy Backend (Server)
 
 1. **Go to Render Dashboard** → Click "New +" → Select "Web Service"
 
@@ -26,21 +84,16 @@ This guide will help you deploy both the backend (server) and frontend (client) 
    - **Plan**: Free (or choose paid plan)
 
 4. **Add Environment Variables**:
-   Click "Add Environment Variable" and add:
    ```
    MONGODB_URI = your_mongodb_atlas_connection_string
    JWT_SECRET = your_random_secret_key_here
    PORT = 10000
    ```
-   
-   **Note**: Render will automatically assign a PORT, but you can set it to 10000. The server code uses `process.env.PORT || 5000`.
 
 5. **Click "Create Web Service"**
-   - Render will start building and deploying your backend
-   - Wait for deployment to complete (usually 2-5 minutes)
-   - Note the URL: `https://gym-server.onrender.com` (or your custom domain)
+   - Note the URL: `https://gym-server.onrender.com`
 
-## Step 2: Deploy Frontend (Client)
+### Step 2: Deploy Frontend (Client)
 
 1. **Go to Render Dashboard** → Click "New +" → Select "Static Site"
 
@@ -57,47 +110,14 @@ This guide will help you deploy both the backend (server) and frontend (client) 
    - **Environment**: `Node`
 
 4. **Add Environment Variables**:
-   Click "Add Environment Variable" and add:
    ```
    REACT_APP_API_URL = https://gym-server.onrender.com
    ```
    
-   **Important**: Replace `gym-server.onrender.com` with your actual backend URL from Step 1.
+   **Important**: Replace `gym-server.onrender.com` with your actual backend URL.
 
 5. **Click "Create Static Site"**
-   - Render will start building and deploying your frontend
-   - Wait for deployment to complete (usually 3-7 minutes)
-   - Note the URL: `https://gym-client.onrender.com` (or your custom domain)
-
-## Step 3: Update API URLs in Client Code
-
-After deployment, you need to update the API URLs in your client code to use the environment variable.
-
-**Update these files to use `process.env.REACT_APP_API_URL`:**
-
-1. `client/src/context/AuthContext.js`
-2. `client/src/pages/AdminDashboard.js`
-3. `client/src/pages/UserDashboard.js`
-4. `client/src/pages/Payment.js`
-5. Any other files using `http://localhost:5000`
-
-**Example change:**
-```javascript
-// Before
-const API_URL = 'http://localhost:5000';
-
-// After
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-```
-
-Then commit and push the changes:
-```bash
-git add .
-git commit -m "Update API URLs to use environment variables"
-git push origin main
-```
-
-Render will automatically redeploy when you push changes.
+   - Note the URL: `https://gym-client.onrender.com`
 
 ## Step 4: MongoDB Atlas Setup
 
